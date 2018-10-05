@@ -1,6 +1,6 @@
 #pragma once
 #include <iostream>
-#include <string.h>
+#include <string>
 
 
 using namespace std;
@@ -17,6 +17,17 @@ public:
 	int m_inventory[MAX_INVENTORY];
 	string m_name;
 	int m_attackVal;
+	bool m_turn = false;
+};
+
+class Troll : public Character {
+public:
+	void fly() { cout << "Average Dooper is flapping and flying" << endl; }
+	void attack(Character * t_enemy)
+	{
+		t_enemy->m_health -= m_attackVal;
+	}
+
 };
 
 class Orc : public Character {
@@ -25,9 +36,8 @@ public:
 	void walk() { cout << "Doopers have a really cool walk!" << endl; }
 	void fly() { cout << "Dooper is flapping and flying" << endl; }
 
-};
-
-class Troll : public Character {
-public:
-	void fly() { cout << "Average Dooper is flapping and flying" << endl; }
+	void attack(Character  * t_enemy)
+	{ 
+		t_enemy->m_health -= m_attackVal;
+	}
 };
