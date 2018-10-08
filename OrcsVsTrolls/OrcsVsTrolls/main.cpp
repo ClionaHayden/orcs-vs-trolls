@@ -7,6 +7,8 @@ void initialiseArrays(Orc * t_pointer[], Troll * t_pointerT[], int t_max, string
 void startGame(const int t_max , Orc * t_pointerO[], Troll * t_pointerT[]);
 static const void printStory();
 void printOptions( const int  t_max, Orc * t_pointerO[], Troll * t_pointerT[]);
+void const printInventory(Orc * t_orc);
+void spellList(Orc * t_orc, Troll * t_troll);
 
 int main(void)
 {
@@ -20,7 +22,9 @@ int main(void)
 	string names[][10]{ {"Makor","Gortwag", "Atulg", "Guarg", "Dul" ,"Urul", "Mug", "Yak", "Urim", "Olpac" },
 	{"Olfin", "Bazur", "Orok", "Brag", "Bugak", "Borkul", "Lob", "Gat", "Yar", "Ghorbash" } };
 
+
 	initialiseArrays(orcs, trolls, MAX_NPCS, names);
+
 
 	startGame(MAX_NPCS, orcs, trolls);
 
@@ -35,6 +39,8 @@ void initialiseArrays(Orc * t_pointerO[], Troll * t_pointerT[], int t_max, strin
 		t_pointerT[i] = new Troll;
 		t_pointerO[i]->m_attackVal = rand() % 10 + 1;
 		t_pointerT[i]->m_attackVal = rand() % 10 + 1;
+		t_pointerO[i]->m_spellVal = rand() % 10 + 5;
+		t_pointerT[i]->m_spellVal = rand() % 10 + 5;
 		t_pointerO[i]->m_name = t_name[0][i];
 		t_pointerT[i]->m_name = t_name[1][i];
 	}
@@ -57,7 +63,9 @@ static void const printStory()
 
 void printOptions(const int t_max, Orc * t_pointerO[], Troll * t_pointerT[])
 {
-	int choice = 0;
+	int playerChoice = 0;
+	int enemyChoice = 0;
+	string loot[t_pointerO[0]->MAX_INVENTORY]{ "Fire Runestone","Assassin's Blade", "Bow of the Aedra", "Briar Heart", "Water hag Tooth", "Meteorite Ingot", "Gold Ruby Ring", "Silver Amber Necklace", "Chillrend", "Ayleid Crown of Lindai" };
 
 	for (int i = 0; i < t_max; i++)
 	{
@@ -68,39 +76,138 @@ void printOptions(const int t_max, Orc * t_pointerO[], Troll * t_pointerT[])
 
 		while (t_pointerT[i]->m_health > 0)
 		{
-			if (t_pointerO[0]->m_turn)
+			if (t_pointerO[0]->m_turn) // if orc's turn
 			{
-				cout << "\nWhat will you do?\n\n1.Attack                          3.Defend\n2.Spells                          4.Inventory\n";
-				cin >> choice;
-			}
-			switch (choice)
-			{
-			case 1: // attack
-				if (t_pointerO[0]->m_turn == true) // if orc's turn
+				cout << "----------------------------------------------------------------------" << endl;
+				if (t_pointerO[0]->m_turn)
 				{
-					cout << "You attacked the Troll!\n" << t_pointerT[i]->m_name << " took " << t_pointerO[0]->m_attackVal  << " damage\n";
+					cout << "\nWhat will you do?\n\n1.Attack                          3.Defend\n2.Spells                          4.Inventory\n";
+					cin >> playerChoice;
+				}
+				switch (playerChoice)
+				{
+				case 1: // attack
+					cout << "You attacked the Troll!\n" << t_pointerT[i]->m_name << " took " << t_pointerO[0]->m_attackVal << " damage\n";
 					t_pointerO[0]->attack(t_pointerT[i]);
 					t_pointerO[0]->m_attackVal = rand() % 10 + 1;
 					t_pointerO[0]->m_turn = false;
 					t_pointerT[i]->m_turn = true;
+					break;
+
+				case 2:
+					spellList(t_pointerO[0], t_pointerT[i]);
+					break;
+
+				case 3:
+					cout << "You raise your shield and take a defensive stance" << endl;
+					t_pointerT[i]->m_spellVal = t_pointerT[i]->m_spellVal / 2;
+					t_pointerT[i]->m_attackVal = t_pointerT[i]->m_attackVal / 2;
+					t_pointerO[0]->m_turn = false;
+					t_pointerT[i]->m_turn = true;
+					break;
+
+				case 4:
+					printInventory(t_pointerO[0]);
+					break;
+
+				default:
+					cout << "You find yourself unable to move with fear!" << endl;
+					t_pointerO[0]->m_turn = false;
+					t_pointerT[i]->m_turn = true;
+					break;
 				}
-				else // if troll's turn
+
+			}
+
+			if (t_pointerT[i]->m_turn) // if enemy's turn
+			{
+				cout << "----------------------------------------------------------------------" << endl;
+				enemyChoice = rand() % 2 + 1;
+				switch (enemyChoice)
 				{
-					cout << "\nThe troll Attacked!\nYou took "<< t_pointerT[i]->m_attackVal << " damage\n";
+				case 1:
+					cout << "The troll raises its club and attacks!\nYou took " << t_pointerT[i]->m_attackVal << "  damage" << endl;
 					t_pointerT[i]->attack(t_pointerO[0]);
+					t_pointerT[i]->m_attackVal = rand() % 10 + 1;
+					t_pointerT[i]->m_turn = false;
+					t_pointerO[0]->m_turn = true;
+					break;
+
+				case 2:
+					cout << "Troll casts Thunder!\nYou took " << t_pointerT[i]->m_spellVal << " damage\n";
+					t_pointerT[i]->attack(t_pointerO[0]);
+					t_pointerT[i]->m_spellVal = rand() % 10 + 5;
 					t_pointerO[0]->m_turn = true;
 					t_pointerT[i]->m_turn = false;
+					break;
+				default:
+					cout << "The troll flails about wildly!" << endl;
+					t_pointerO[0]->m_turn = true;
+					t_pointerT[i]->m_turn = false;
+					break;
 				}
-				break;
-			case 2:
-				break;
-			case 3:
-				break;
-			case 4:
-				break;
-			default:
-				break;
 			}
 		}
+
+		//when troll is dead
+		cout << "------------------------------------------------------" << endl;
+		cout << t_pointerT[i]->m_name << " falls to the ground!" << endl;
+		cout << "You pick up " << loot[i] << endl;
+		t_pointerO[0]->m_inventory[i] = loot[i];
+		cout << "------------------------------------------------------" << endl;
+	}
+}
+
+void const printInventory(Orc * t_orc)
+{
+	cout << "-----------------Current Inventory-------------------" << endl;
+	for (int i = 0; i < t_orc->MAX_INVENTORY; i++)
+	{
+		cout << t_orc->m_inventory[i] << endl;
+	}
+}
+
+void spellList(Orc * t_orc, Troll * t_troll)
+{
+	int playerChoice;
+	cout << "\nWhat spell will you cast?\n\n1.Fireball                          3.Thunder\n2.Heal                          4.View Health\n";
+	cin >> playerChoice;
+	switch (playerChoice)
+	{
+	case 1:
+		cout << "You threw a fireball at the Troll!\n" << t_troll->m_name << " took " << t_orc->m_spellVal << " damage\n";
+		t_orc->attack(t_troll);
+		t_orc->m_spellVal = rand() % 10 + 5;
+		t_orc->m_turn = false;
+		t_troll->m_turn = true;
+		break;
+	case 2:
+		t_orc->m_spellVal = rand() % 30 + 20;
+		cout << "A blue glow surrounds you! You heal " << t_orc->m_spellVal << " health" << endl;
+		t_orc->m_health = t_orc->m_health + t_orc->m_spellVal;
+		if (t_orc->m_health > 100)
+		{
+			t_orc->m_health = t_orc->MAX_HEALTH;
+		}
+		t_orc->m_spellVal = rand() % 10 + 5;
+		t_orc->m_turn = false;
+		t_troll->m_turn = true;
+		break;
+	case 3:
+		cout << "You fire a bolt of lightning at the troll!\n" << t_troll->m_name << " took " << t_orc->m_spellVal << " damage\n";
+		t_orc->attack(t_troll);
+		t_orc->m_spellVal = rand() % 10 + 5;
+		t_orc->m_turn = false;
+		t_troll->m_turn = true;
+		break;
+	case 4:
+		cout << "Current health: " << t_orc->m_health << endl;
+		break;
+	default:
+		cout << "You find yourself unable to move with fear!" << endl;
+		t_orc->m_turn = false;
+		t_troll->m_turn = true;
+		break;
+		break;
 	}
 }

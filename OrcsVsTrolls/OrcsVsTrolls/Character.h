@@ -11,12 +11,13 @@ public:
 	virtual void walk() { cout << "just in case they are too young to walk yet" << endl; }
 	virtual void fly() = 0; //pure virtual function
 
-
-	int m_health = 100;
+	const int MAX_HEALTH = 100;
+	int m_health = MAX_HEALTH;
 	static const int MAX_INVENTORY = 10;
-	int m_inventory[MAX_INVENTORY];
+	string m_inventory[MAX_INVENTORY];
 	string m_name;
 	int m_attackVal;
+	int m_spellVal;
 	bool m_turn = false;
 };
 
