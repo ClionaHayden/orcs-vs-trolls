@@ -11,7 +11,7 @@ public:
 	virtual void walk() { cout << "just in case they are too young to walk yet" << endl; }
 	virtual void fly() = 0; //pure virtual function
 
-	const int MAX_HEALTH = 100;
+	const int MAX_HEALTH = 50;
 	int m_health = MAX_HEALTH;
 	static const int MAX_INVENTORY = 10;
 	string m_inventory[MAX_INVENTORY];
